@@ -6,6 +6,13 @@ import router from './router'
 
 Vue.config.productionTip = false
 
+Object.defineProperty(Vue.prototype, '$bus', {
+    get() {
+        return this.$root.bus;
+    }
+});
+
+
 /* eslint-disable no-new */
 new Vue({
   el: '#app',
@@ -13,3 +20,5 @@ new Vue({
   template: '<App/>',
   components: { App }
 })
+
+// var bus = new Vue({});

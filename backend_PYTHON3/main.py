@@ -71,7 +71,7 @@ def index():
 #     profits.append(profit)
 
 #
-@app.route('/profit', methods=['POST','GET'])
+@app.route('/profit', methods=['POST','GET','DELETE'])
 def profits():
     if request.method=='POST':
         print 'inside the post if statement'
@@ -80,7 +80,6 @@ def profits():
         sql = 'INSERT INTO "onetwothree" (ID,NAME,DESCRIPTION) VALUES (%s, %s, %s)'
         params = (request.json['id'], request.json['name'], request.json['description'])
         cur.execute(sql, params)
-
         conn.commit()
         print "Records created successfully";
         conn.close()
@@ -94,7 +93,15 @@ def profits():
         data = cur.fetchall()
         conn.close()
         return jsonify(data)
-
+    if request.method=='DELETE':
+        conn = psycopg2.connect(database = "onetwothree", user = "patientplatypus", password = "Fvnjty0b")
+        cur = conn.cursor()
+        sql = "DELETE FROM onetwothree WHERE id = %s"
+        params = (request.json['id'])
+        cur.execute(sql,params)
+        conn.commit()
+        conn.close()
+        return('successfully deleted from database')
 #
 # @app.route('/food', methods=['GET','POST','DELETE','PUT'])
 # def races_units(race_name):
