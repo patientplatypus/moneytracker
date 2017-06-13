@@ -6,16 +6,21 @@ import router from './router'
 
 Vue.config.productionTip = false
 
-Object.defineProperty(Vue.prototype, '$bus', {
-    get() {
-        return this.$root.bus;
-    }
-});
+// Object.defineProperty(Vue.prototype, '$bus', {
+//     get() {
+//         return this.$root.bus;
+//     }
+// });
+//
 
+var bus = new Vue({});
 
 /* eslint-disable no-new */
 new Vue({
   el: '#app',
+  data: {
+    bus: bus
+  },
   router,
   template: '<App/>',
   components: { App }

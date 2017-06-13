@@ -24,106 +24,98 @@ db.init_app(app)
 # Create tables if they don't already exist
 db.create_all()
 
+# profit or loss
+# list name
+# amount
+# description
 
-# def checkTableExists(dbcon, tablename):
-#     dbcur = dbcon.cursor()
-#     dbcur.execute("""
-#         SELECT COUNT(*)
-#         FROM information_schema.tables
-#         WHERE table_name = '{0}'
-#         """.format(tablename.replace('\'', '\'\'')))
-#     if dbcur.fetchone()[0] == 1:
-#         dbcur.close()
-#         return True
-#
-#     dbcur.close()
-#     return False
-#
-
-conn = psycopg2.connect(database = "onetwothree", user = "patientplatypus", password = "Fvnjty0b")
+conn = psycopg2.connect(database = "profitnloss3", user = "patientplatypus", password = "Fvnjty0b")
 cur = conn.cursor()
-q = """CREATE TABLE IF NOT EXISTS onetwothree (
-         id int,
-         name  VARCHAR(255),
-         description  VARCHAR(255))"""
+q = """CREATE TABLE IF NOT EXISTS ledger (
+         id Bigint,
+         profitorloss varchar(255),
+         listname varchar(255),
+         itemname  VARCHAR(255),
+         itemdescription  VARCHAR(255))"""
 cur.execute(q)
 conn.commit()
 conn.close()
 
+# if request.args.has_key('campaign_id_crid'):
 
 
-
-@app.route('/')
-def index():
-    return 'At Index of Python Backend'
-#
-# @app.route('/loss', methods=['GET','POST','DELETE','PUT'])
-# def races():
-#     return 'loss'
-
-# @app.route('/profit', methods=['POST'])
-# def profits():
-#     profit = {
-#     'id':request.json['id'],
-#     'title':request.json['title'],
-#     'description':request.json['description']
-#     }
-#     profits.append(profit)
-
-#
-@app.route('/profit', methods=['POST','GET','DELETE'])
+@app.route('/', methods=['GET', 'DELETE', 'POST'])
 def profits():
-    if request.method=='POST':
-        print 'inside the post if statement'
-        conn = psycopg2.connect(database = "onetwothree", user = "patientplatypus", password = "Fvnjty0b")
-        cur = conn.cursor()
-        sql = 'INSERT INTO "onetwothree" (ID,NAME,DESCRIPTION) VALUES (%s, %s, %s)'
-        params = (request.json['id'], request.json['name'], request.json['description'])
-        cur.execute(sql, params)
-        conn.commit()
-        print "Records created successfully";
-        conn.close()
-        return('successfully added to database')
     if request.method=='GET':
-        conn = psycopg2.connect(database = "onetwothree", user = "patientplatypus", password = "Fvnjty0b")
-        cur = conn.cursor()
-        sql = 'SELECT * FROM onetwothree'
-        cur.execute(sql)
-        conn.commit()
-        data = cur.fetchall()
-        conn.close()
-        return jsonify(data)
+        if 'listname' in request.json:
+            print 'inside listname == True!!!'
+            conn = psycopg2.connect(database = "profitnloss3", user = "patientplatypus", password = "Fvnjty0b")
+            cur = conn.cursor()
+            sql = 'SELECT * FROM ledger WHERE listname = %s'
+            params = (request.json['listname'])
+            cur.execute(sql, params)
+            conn.commit()
+            data = cur.fetchall()
+            conn.close()
+            return jsonify(data)
+        else:
+            print 'inside listname == False!!!'
+            conn = psycopg2.connect(database = "profitnloss3", user = "patientplatypus", password = "Fvnjty0b")
+            cur = conn.cursor()
+            sql = 'SELECT * FROM ledger'
+            cur.execute(sql)
+            conn.commit()
+            data = cur.fetchall()
+            conn.close()
+            return jsonify(data)
     if request.method=='DELETE':
-        conn = psycopg2.connect(database = "onetwothree", user = "patientplatypus", password = "Fvnjty0b")
+        conn = psycopg2.connect(database = "profitnloss3", user = "patientplatypus", password = "Fvnjty0b")
         cur = conn.cursor()
-        sql = "DELETE FROM onetwothree WHERE id = %s"
+        sql = "DELETE FROM ledger WHERE id = %s"
         params = (request.json['id'])
         cur.execute(sql,params)
         conn.commit()
         conn.close()
         return('successfully deleted from database')
-#
-# @app.route('/food', methods=['GET','POST','DELETE','PUT'])
-# def races_units(race_name):
-#     return 'food'
-#
-# @app.route('/rent', methods=['GET','POST','DELETE','PUT'])
-# def races_units(race_name):
-#     return 'rent'
-#
-# @app.route('/utilities', methods=['GET','POST','DELETE','PUT'])
-# def races_units(race_name):
-#     return 'utilities'
-#
-# @app.route('/salary', methods=['GET','POST','DELETE','PUT'])
-# def races_units(race_name):
-#     return 'salary'
-#
-# @app.route('/interest', methods=['GET','POST','DELETE','PUT'])
-# def races_units(race_name):
-#     return 'interest'
+    if request.method=='POST':
+        print 'inside the post if statement'
+        conn = psycopg2.connect(database = "profitnloss3", user = "patientplatypus", password = "Fvnjty0b")
+        cur = conn.cursor()
+        sql = 'INSERT INTO "ledger" (ID, PROFITORLOSS, LISTNAME, ITEMNAME, ITEMDESCRIPTION) VALUES (%s,  %s, %s, %s, %s)'
+        params = (request.json['id'],  request.json['profitorloss'], request.json['listname'], request.json['itemname'], request.json['itemdescription'])
+        cur.execute(sql, params)
+        conn.commit()
+        print "Records created successfully";
+        conn.close()
+        return('successfully added to database')
 
+# @app.route('/add', methods=['POST'])
+# def profits():
+#     if request.method=='POST':
+#         print 'inside the post if statement'
+#         conn = psycopg2.connect(database = "profitnloss", user = "patientplatypus", password = "Fvnjty0b")
+#         cur = conn.cursor()
+#         sql = 'INSERT INTO "ledgertable" (ID, PROFITORLOSS, LISTNAME, ITEMNAME, ITEMDESCRIPTION) VALUES (%s,  %s, %s, %s, %s)'
+#         params = (request.json['id'],  request.json['profitorloss'], request.json['listname'], request.json['itemname'], request.json['itemdescription'])
+#         cur.execute(sql, params)
+#         conn.commit()
+#         print "Records created successfully";
+#         conn.close()
+#         return('successfully added to database')
 
+# @app.route('/loss', methods=['POST'])
+# def profits():
+#     if request.method=='POST':
+#         print 'inside the post if statement'
+#         conn = psycopg2.connect(database = "profitnloss", user = "patientplatypus", password = "Fvnjty0b")
+#         cur = conn.cursor()
+#         sql = 'INSERT INTO "ledgertable" (ID, PROFITORLOSS, LISTNAME, ITEMNAME, ITEMDESCRIPTION) VALUES (%s, "loss", %s, %s, %s)'
+#         params = (request.json['id'], request.json['listname'], request.json['itemname'], request.json['itemdescription'])
+#         cur.execute(sql, params)
+#         conn.commit()
+#         print "Records created successfully";
+#         conn.close()
+#         return('successfully added to database')
 
 # If this file is being run directly, then start Flask
 if __name__ == '__main__':

@@ -38,24 +38,40 @@ import datetime
 #         return '<Race %r>' % self.name
 
 
-class Profit(db.Model):
-    __tablename__ = 'onetwothree'
-    id = db.Column(db.Integer, primary_key=True, nullable=True)
-    name = db.Column(db.String(255), unique=True, nullable=True)
-    description = db.Column(db.String(255), nullable=True)
 
-    def __init__(self, name, description):
-        self.name = name
-        self.description = description
+# q = """CREATE TABLE IF NOT EXISTS ledgertable (
+#          id int,
+#          profitorloss varchar(255),
+#          listname varchar(255)
+#          itemname  VARCHAR(255),
+#          itemdescription  VARCHAR(255))"""
+# cur.execute(q)
+
+
+class Profit(db.Model):
+    __tablename__ = 'ledger'
+    id = db.Column(db.BigInteger, primary_key=True, nullable=True)
+    profitorloss = db.Column(db.String(255), unique=False, nullable=True)
+    listname = db.Column(db.String(255), unique=False, nullable=True)
+    itemname = db.Column(db.String(255), unique=False, nullable=True)
+    itemdescription = db.Column(db.String(255), unique=False, nullable=True)
+
+    def __init__(self, profitorloss, listname, itemname, itemdescription):
+        self.profitorloss = profitorloss
+        self.listname = listname
+        self.itemname = itemname
+        self.itemdescription = itemdescription
 
     @property
     def serialize(self):
         """Return object data in easily serializable format"""
         return {
-            'id'         : self.id,
-            'name'       : self.name,
-            'description': self.description
+            'id'             : self.id,
+            'profitorloss'   : self.profitorloss,
+            'listname'       : self.listname,
+            'itemname'       : self.itemname,
+            'itemdescription': self.itemdescription
         }
 
     def __repr__(self):
-        return '<Profit %r>' % self.name
+        return '<ledger %r>' % self.name

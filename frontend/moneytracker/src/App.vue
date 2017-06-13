@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <img src="./assets/logo.png">
+    <img src="https://media.giphy.com/media/2u11zpzwyMTy8/giphy.gif">
     <router-view></router-view>
   </div>
 </template>
