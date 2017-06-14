@@ -21,10 +21,11 @@
   <div v-if='this.newledger=="name"' >
 
       <div class='row'>
+
+
         <div class="col-4 ">
-          <input v-model="dollarvariable" placeholder="how much green we talkin">
           <input v-model="itemname" placeholder="item name">
-          <input v-model="itemdescription" placeholder="item description">
+          <input v-model="itemdescription" placeholder="how much green we talkin">
           <button v-on:click="updateProfit()">profit</button>
           <button v-on:click="updateLoss()">loss</button>
         </div>
@@ -33,14 +34,16 @@
 
       <div class="row">
         <div class="col-4 profitcontainer">
-          <div v-if='this.whichuse=="profit"'>
-            <Ledgerprofit v-bind:dollars="profitvariable"></Ledgerprofit>
-          </div>
+          <!-- <div v-if='this.whichuse=="profit"'> -->
+            <Ledgerprofit v-bind:ledgerInputProfit="ledgerInputProfit"
+            v-bind:ledgername="ledgername"></Ledgerprofit>
+          <!-- </div> -->
         </div>
         <div class="col-4  losscontainer">
-          <div v-if='this.whichuse=="loss"'>
-            <Ledgerloss v-bind:dollars="lossvariable" ></Ledgerloss>
-          </div>
+          <!-- <div v-if='this.whichuse=="loss"'> -->
+            <Ledgerloss v-bind:ledgerInputLoss="ledgerInputLoss"
+            v-bind:ledgername="ledgername"></Ledgerloss>
+          <!-- </div> -->
         </div>
         <div class="col-4 totalcontainer">
             <p>subtotal will go here</p>
@@ -73,12 +76,20 @@ export default {
       itemname: '',
       itemdescription: '',
       whichuse: null,
-      newledger: false
+      newledger: false,
+      ledgerInputProfit: false,
+      ledgerInputLoss: false
     }
+  },
+  mounted(){
+    eventbus.$on('resetLedgerInput', (newvalue)=>{
+      console.log('inside eventbus on');
+      this.ledgerInputProfit = newvalue;
+      this.ledgerInputLoss = newvalue;
+    })
   },
   methods:{
       updateProfit(){
-
         axios({
           method: 'post',
           url: 'http://localhost:5000/',
@@ -90,7 +101,8 @@ export default {
             'profitorloss': 'profit',
             'listname': this.ledgername,
             'itemname': this.itemname,
-            'itemdescription': this.itemdescription
+            'itemdescription': this.itemdescription,
+            'generalpost': true
               }
         })
         .then(response => {
@@ -100,12 +112,32 @@ export default {
           console.log('this is the error from the python server ', error);
         })
 
-        this.profitvariable = this.dollarvariable;
-        this.whichuse = 'profit'
+        this.ledgerInputProfit = true;
       },
       updateLoss(){
-        this.lossvariable = this.dollarvariable;
-        this.whichuse = 'loss'
+        axios({
+          method: 'post',
+          url: 'http://localhost:5000/',
+          headers: {
+            'Content-type': 'application/json'
+            },
+          data:{
+            'id': Date.now(),
+            'profitorloss': 'loss',
+            'listname': this.ledgername,
+            'itemname': this.itemname,
+            'itemdescription': this.itemdescription,
+            'generalpost': true
+              }
+        })
+        .then(response => {
+          console.log('this is the response from the python server ', response);
+        })
+        .catch((error)=>{
+          console.log('this is the error from the python server ', error);
+        })
+
+        this.ledgerInputLoss = true;
       },
       getLedgers(){
         axios({
@@ -128,13 +160,14 @@ export default {
       consoleLedger(){
         console.log('inside consoleLedger method and the value of this.ledgername is ', this.ledgername);
         axios({
-          method: 'get',
+          method: 'post',
           url: 'http://localhost:5000/',
           headers: {
             'Content-type': 'application/json'
             },
           data:{
-            'listname': this.ledgername
+            'listname': this.ledgername,
+            'consoleLedger': true
               }
         })
         .then((response)=>{

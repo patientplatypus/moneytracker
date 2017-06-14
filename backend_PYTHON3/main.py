@@ -12,6 +12,9 @@ from models.shared import db
 from models.profits import Profit
 #from models.race_unit import RaceUnit
 
+import sys
+
+
 dotenv_path = join(dirname(__file__), '.env')
 load_dotenv(dotenv_path)
 
@@ -23,11 +26,6 @@ db.app = app
 db.init_app(app)
 # Create tables if they don't already exist
 db.create_all()
-
-# profit or loss
-# list name
-# amount
-# description
 
 conn = psycopg2.connect(database = "profitnloss3", user = "patientplatypus", password = "Fvnjty0b")
 cur = conn.cursor()
@@ -47,27 +45,15 @@ conn.close()
 @app.route('/', methods=['GET', 'DELETE', 'POST'])
 def profits():
     if request.method=='GET':
-        if 'listname' in request.json:
-            print 'inside listname == True!!!'
-            conn = psycopg2.connect(database = "profitnloss3", user = "patientplatypus", password = "Fvnjty0b")
-            cur = conn.cursor()
-            sql = 'SELECT * FROM ledger WHERE listname = %s'
-            params = (request.json['listname'])
-            cur.execute(sql, params)
-            conn.commit()
-            data = cur.fetchall()
-            conn.close()
-            return jsonify(data)
-        else:
-            print 'inside listname == False!!!'
-            conn = psycopg2.connect(database = "profitnloss3", user = "patientplatypus", password = "Fvnjty0b")
-            cur = conn.cursor()
-            sql = 'SELECT * FROM ledger'
-            cur.execute(sql)
-            conn.commit()
-            data = cur.fetchall()
-            conn.close()
-            return jsonify(data)
+        print 'inside listname == False!!!'
+        conn = psycopg2.connect(database = "profitnloss3", user = "patientplatypus", password = "Fvnjty0b")
+        cur = conn.cursor()
+        sql = 'SELECT * FROM ledger'
+        cur.execute(sql)
+        conn.commit()
+        data = cur.fetchall()
+        conn.close()
+        return jsonify(data)
     if request.method=='DELETE':
         conn = psycopg2.connect(database = "profitnloss3", user = "patientplatypus", password = "Fvnjty0b")
         cur = conn.cursor()
@@ -78,45 +64,53 @@ def profits():
         conn.close()
         return('successfully deleted from database')
     if request.method=='POST':
-        print 'inside the post if statement'
-        conn = psycopg2.connect(database = "profitnloss3", user = "patientplatypus", password = "Fvnjty0b")
-        cur = conn.cursor()
-        sql = 'INSERT INTO "ledger" (ID, PROFITORLOSS, LISTNAME, ITEMNAME, ITEMDESCRIPTION) VALUES (%s,  %s, %s, %s, %s)'
-        params = (request.json['id'],  request.json['profitorloss'], request.json['listname'], request.json['itemname'], request.json['itemdescription'])
-        cur.execute(sql, params)
-        conn.commit()
-        print "Records created successfully";
-        conn.close()
-        return('successfully added to database')
+        if 'consoleLedger' in request.get_json():
+            print('inside consoleLedger')
+            print('value of listname is ', request.json['listname'])
+            conn = psycopg2.connect(database = "profitnloss3", user = "patientplatypus", password = "Fvnjty0b")
+            cur = conn.cursor()
+            sql = 'SELECT * FROM ledger WHERE listname = %s'
+            params = (request.json['listname'],)
+            cur.execute(sql, params)
+            conn.commit()
+            data = cur.fetchall()
+            conn.close()
+            return jsonify(data)
+        if 'populateprofit' in request.get_json():
+            print('inside populateprofit')
+            print('value of request.json[listname] is ', request.json['listname'])
+            conn = psycopg2.connect(database = "profitnloss3", user = "patientplatypus", password = "Fvnjty0b")
+            cur = conn.cursor()
+            sql = 'SELECT * FROM ledger WHERE profitorloss = %s AND listname = %s'
+            params = ('profit',request.json['listname'],)
+            cur.execute(sql, params)
+            conn.commit()
+            data = cur.fetchall()
+            conn.close()
+            return jsonify(data)
+        if 'populateloss' in request.get_json():
+            print('inside populateloss')
+            conn = psycopg2.connect(database = "profitnloss3", user = "patientplatypus", password = "Fvnjty0b")
+            cur = conn.cursor()
+            sql = 'SELECT * FROM ledger WHERE profitorloss = %s AND listname = %s'
+            params = ('loss',request.json['listname'],)
+            cur.execute(sql, params)
+            conn.commit()
+            data = cur.fetchall()
+            conn.close()
+            return jsonify(data)
+        if 'generalpost' in request.get_json():
+            print 'inside the post if statement'
+            conn = psycopg2.connect(database = "profitnloss3", user = "patientplatypus", password = "Fvnjty0b")
+            cur = conn.cursor()
+            sql = 'INSERT INTO "ledger" (ID, PROFITORLOSS, LISTNAME, ITEMNAME, ITEMDESCRIPTION) VALUES (%s,  %s, %s, %s, %s)'
+            params = (request.json['id'],  request.json['profitorloss'], request.json['listname'], request.json['itemname'], request.json['itemdescription'])
+            cur.execute(sql, params)
+            conn.commit()
+            print "Records created successfully";
+            conn.close()
+            return('successfully added to database')
+    return('end of if/profits')
 
-# @app.route('/add', methods=['POST'])
-# def profits():
-#     if request.method=='POST':
-#         print 'inside the post if statement'
-#         conn = psycopg2.connect(database = "profitnloss", user = "patientplatypus", password = "Fvnjty0b")
-#         cur = conn.cursor()
-#         sql = 'INSERT INTO "ledgertable" (ID, PROFITORLOSS, LISTNAME, ITEMNAME, ITEMDESCRIPTION) VALUES (%s,  %s, %s, %s, %s)'
-#         params = (request.json['id'],  request.json['profitorloss'], request.json['listname'], request.json['itemname'], request.json['itemdescription'])
-#         cur.execute(sql, params)
-#         conn.commit()
-#         print "Records created successfully";
-#         conn.close()
-#         return('successfully added to database')
-
-# @app.route('/loss', methods=['POST'])
-# def profits():
-#     if request.method=='POST':
-#         print 'inside the post if statement'
-#         conn = psycopg2.connect(database = "profitnloss", user = "patientplatypus", password = "Fvnjty0b")
-#         cur = conn.cursor()
-#         sql = 'INSERT INTO "ledgertable" (ID, PROFITORLOSS, LISTNAME, ITEMNAME, ITEMDESCRIPTION) VALUES (%s, "loss", %s, %s, %s)'
-#         params = (request.json['id'], request.json['listname'], request.json['itemname'], request.json['itemdescription'])
-#         cur.execute(sql, params)
-#         conn.commit()
-#         print "Records created successfully";
-#         conn.close()
-#         return('successfully added to database')
-
-# If this file is being run directly, then start Flask
 if __name__ == '__main__':
     app.run(debug=True)
