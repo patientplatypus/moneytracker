@@ -6,7 +6,7 @@
     <ul id="example-1">
       <li v-for="item in listArr">
         <p>Item name:  {{ item.itemname }}</p>
-        <p>Item description: {{ item.itemdescription }}</p>
+        <p ref='dollartag'>Item description: {{ item.itemdescription }}</p>
         <hr/>
       </li>
     </ul>
@@ -28,8 +28,40 @@ export default {
   data () {
     return {
       msg: 'Welcome to Your Vue.js App',
-      listArr: []
+      listArr: [],
+      offsetArr: []
     }
+  },
+  updated: function () {
+    this.$nextTick(function() {
+      // console.log('inside READY ***************************************');
+      // console.log('here is the output from this.$refs ', this.$refs.dollartag);
+      this.offsetArr = [];
+      this.$refs.dollartag.forEach((val)=>{
+        this.offsetArr.push(val.offsetTop);
+      })
+      // console.log('here is the offsetArr ', this.offsetArr);
+
+      var lossLedgerArr = []
+
+      var self = this;
+
+      var promise = new Promise((resolve)=>{
+        for(var x = 0; x<self.listArr.length; x++){
+          lossLedgerArr.push([self.offsetArr[x], self.listArr[x]])
+          if(x === self.listArr.length-1){
+            resolve(true)
+          }
+        }
+      });
+
+      promise.then((resolve)=>{
+        if (resolve){
+          console.log('INSIDE LOSS RESOLVE');
+          eventbus.$emit('lossLedger', lossLedgerArr);
+        }
+      });
+    })
   },
   props:['ledgerInputLoss', 'ledgername'],
   watch : {

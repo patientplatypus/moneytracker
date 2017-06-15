@@ -46,7 +46,7 @@
           <!-- </div> -->
         </div>
         <div class="col-4 totalcontainer">
-            <p>subtotal will go here</p>
+            <Ledgersubtotal v-bind:lossLedgerArrprop='lossLedgerArr' v-bind:profitLedgerArrprop='profitLedgerArr'></Ledgersubtotal>
         </div>
       </div>
 
@@ -62,10 +62,11 @@ import axios from 'axios';
 import eventbus from '../bus/eventbus';
 import Ledgerloss from './Ledgerloss';
 import Ledgerprofit from './Ledgerprofit';
+import Ledgersubtotal from './Ledgersubtotal';
 
 export default {
   name: 'ledger',
-  components: { Ledgerprofit, Ledgerloss },
+  components: { Ledgerprofit, Ledgerloss, Ledgersubtotal },
   data () {
     return {
       msg: 'Welcome to Your Vue.js App',
@@ -78,15 +79,27 @@ export default {
       whichuse: null,
       newledger: false,
       ledgerInputProfit: false,
-      ledgerInputLoss: false
+      ledgerInputLoss: false,
+      lossLedgerArr:[],
+      profitLedgerArr: []
     }
   },
   mounted(){
     eventbus.$on('resetLedgerInput', (newvalue)=>{
-      console.log('inside eventbus on');
+      // console.log('inside eventbus on');
       this.ledgerInputProfit = newvalue;
       this.ledgerInputLoss = newvalue;
-    })
+    });
+    eventbus.$on('profitLedger', (newvalue)=>{
+      // console.log('inside profitledger on');
+      this.profitLedgerArr = newvalue;
+      this.updatedLedger++;
+    });
+    eventbus.$on('lossLedger', (newvalue)=>{
+      // console.log('inside lossLedger on');
+      this.lossLedgerArr = newvalue;
+      this.updatedLedger++;
+    });
   },
   methods:{
       updateProfit(){
@@ -106,10 +119,10 @@ export default {
               }
         })
         .then(response => {
-          console.log('this is the response from the python server ', response);
+          // console.log('this is the response from the python server ', response);
         })
         .catch((error)=>{
-          console.log('this is the error from the python server ', error);
+          // console.log('this is the error from the python server ', error);
         })
 
         this.ledgerInputProfit = true;
@@ -131,10 +144,10 @@ export default {
               }
         })
         .then(response => {
-          console.log('this is the response from the python server ', response);
+          // console.log('this is the response from the python server ', response);
         })
         .catch((error)=>{
-          console.log('this is the error from the python server ', error);
+          // console.log('this is the error from the python server ', error);
         })
 
         this.ledgerInputLoss = true;
@@ -145,10 +158,10 @@ export default {
           url: 'http://localhost:5000/'
         })
         .then((response)=>{
-          console.log('this is the response from the python server on a get request ', response);
+          // console.log('this is the response from the python server on a get request ', response);
         })
         .catch(error=>{
-          console.log('here is the error on a get request from the python server ', error);
+          // console.log('here is the error on a get request from the python server ', error);
         })
       },
       openLedgerMaker(){
@@ -158,7 +171,7 @@ export default {
         this.newledger = "name";
       },
       consoleLedger(){
-        console.log('inside consoleLedger method and the value of this.ledgername is ', this.ledgername);
+        // console.log('inside consoleLedger method and the value of this.ledgername is ', this.ledgername);
         axios({
           method: 'post',
           url: 'http://localhost:5000/',
@@ -171,10 +184,10 @@ export default {
               }
         })
         .then((response)=>{
-          console.log('this is the response from the python server on a get request of listname ', response);
+          // console.log('this is the response from the python server on a get request of listname ', response);
         })
         .catch(error=>{
-          console.log('here is the error on a get request from the python server of listname ', error);
+          // console.log('here is the error on a get request from the python server of listname ', error);
         })
 
 

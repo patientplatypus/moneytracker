@@ -3,9 +3,9 @@
 
     <!-- <div class='dollarvalue'>{{dollars}}</div> -->
     <ul id="example-1">
-      <li v-for="item in listArr" ref='cvglisbox'>
+      <li v-for="item in listArr">
         <p>Item name:  {{ item.itemname }}</p>
-        <p>Item description: {{ item.itemdescription }}</p>
+        <p ref='dollartag'>Item description: {{ item.itemdescription }}</p>
         <hr/>
       </li>
     </ul>
@@ -22,8 +22,45 @@ export default {
   data () {
     return {
       msg: 'Welcome to Your Vue.js App',
-      listArr: []
+      listArr: [],
+      offsetArr: [],
+      profitLedgerArr: []
     }
+  },
+  // mounted: function(){
+  //     console.log('inside mounted!!!');
+  //     console.log('here is the output from this.$refs ', this.$refs);
+  // },
+  updated: function () {
+    this.$nextTick(function() {
+      // console.log('inside READY ***************************************');
+      // console.log('here is the output from this.$refs ', this.$refs.dollartag);
+      this.offsetArr = [];
+      this.$refs.dollartag.forEach((val)=>{
+        this.offsetArr.push(val.offsetTop);
+      })
+      // console.log('here is the offsetArr ', this.offsetArr);
+
+      var profitLedgerArr = []
+
+      var self = this;
+
+      var promise = new Promise((resolve)=>{
+        for(var x = 0; x<self.listArr.length; x++){
+          profitLedgerArr.push([self.offsetArr[x], self.listArr[x]])
+          if(x === self.listArr.length-1){
+            resolve(true)
+          }
+        }
+      });
+
+      promise.then((resolve)=>{
+        if (resolve){
+          console.log('INSIDE PROFIT RESOLVE');
+          eventbus.$emit('profitLedger', profitLedgerArr);
+        }
+      });
+    })
   },
   props:['ledgerInputProfit', 'ledgername'],
   watch : {
@@ -33,7 +70,6 @@ export default {
 
         console.log('ledgerInputProfit changed to '+value);
         console.log('this.ledgername', this.ledgername);
-        console.log('here is the output from this.$refs ', this.$refs);
         eventbus.$emit('resetLedgerInput', false);
         axios({
           method: 'post',
